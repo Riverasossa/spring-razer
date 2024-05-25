@@ -52,7 +52,7 @@ public class Order {
     private Integer zipCode;
 
     @Column(nullable = false)
-    private Integer card;
+    private String card;
 
     @ManyToOne(cascade = CascadeType.REFRESH)
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
@@ -166,11 +166,11 @@ public class Order {
         this.zipCode = zipCode;
     }
 
-    public Integer getCard() {
+    public String getCard() {
         return card;
     }
 
-    public void setCard(Integer card) {
+    public void setCard(String card) {
         this.card = card;
     }
 

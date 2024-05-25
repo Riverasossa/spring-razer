@@ -1,5 +1,8 @@
 package com.tericcabrel.authapi.dtos;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProductDto {
     private Long productId;
     private String name;
@@ -7,6 +10,15 @@ public class ProductDto {
     private double price;
     private String description;
     private String image;
+
+    public ProductDto() {
+    }
+
+    public ProductDto(Long productId, String name, double price) {
+        this.productId = productId;
+        this.name = name;
+        this.price = price;
+    }
 
     public Long getProductId() {
         return productId;
