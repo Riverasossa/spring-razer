@@ -4,29 +4,25 @@ import com.tericcabrel.authapi.dtos.ProductDto;
 import com.tericcabrel.authapi.entities.Product;
 import com.tericcabrel.authapi.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.HttpStatus;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/products")
 public class ProductController {
-
     private final ProductService productService;
-    
 
     @Autowired
     public ProductController(ProductService productService) {
         this.productService = productService;
     }
-
     @GetMapping
     public List<Product> getAllProducts() {
-
         return productService.allProducts();
     }
 
@@ -41,9 +37,13 @@ public class ProductController {
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PostMapping
-    public ResponseEntity<Product> createProduct(@RequestBody ProductDto productDto) {
-        Product createdProduct = productService.createProduct(productDto);
-        return ResponseEntity.ok(createdProduct);
+    public ResponseEntity<?> createProduct(@RequestBody ProductDto productDto) {
+        try {
+            Product createdProduct = productService.createProduct(productDto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
@@ -62,4 +62,18 @@ public class ProductController {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
     }
+
+    /*@GetMapping("/filtered")
+    public ResponseEntity<Page<Product>> getFilteredProducts(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) List<String> categories,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size)
+     {
+        Page<Product> filteredProducts = productService.filterProducts(name, categories, minPrice, maxPrice, page, size);
+        return new ResponseEntity<>(filteredProducts, HttpStatus.OK);
+
+    }*/
 }

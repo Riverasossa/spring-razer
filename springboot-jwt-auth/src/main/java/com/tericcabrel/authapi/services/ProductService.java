@@ -3,6 +3,8 @@ package com.tericcabrel.authapi.services;
 import com.tericcabrel.authapi.dtos.ProductDto;
 import com.tericcabrel.authapi.entities.Product;
 import com.tericcabrel.authapi.repositories.ProductRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -17,6 +19,18 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
+    /*public Page<Product> filterProducts(String name, List<String> categories, double minPrice, double maxPrice, Pageable pageable) {
+        if (name != null && !name.isEmpty()) {
+            return productRepository.findByNameContaining(name, pageable);
+        } else if (categories != null && !categories.isEmpty()) {
+            return productRepository.findByCategoryIn(categories, pageable);
+        } else if (minPrice >= 0 && maxPrice >= minPrice) {
+            return productRepository.findByPriceBetween(minPrice, maxPrice, pageable);
+        } else {
+            return productRepository.findAll(pageable);
+        }
+    }*/
+
     public List<Product> allProducts() {
         List<Product> products = new ArrayList<>();
         productRepository.findAll().forEach(products::add);
@@ -28,6 +42,12 @@ public class ProductService {
     }
 
     public Product createProduct(ProductDto productDTO) {
+        Optional<Product> existingProduct = productRepository.findByName(productDTO.getName());
+
+        if (existingProduct.isPresent()) {
+            throw new RuntimeException("A product with this name already exists.");
+        }
+
         Product product = new Product();
         product.setName(productDTO.getName());
         product.setCategory(productDTO.getCategory());
