@@ -3,16 +3,22 @@ package com.tericcabrel.authapi.services;
 import com.tericcabrel.authapi.dtos.ProductDto;
 import com.tericcabrel.authapi.entities.Product;
 import com.tericcabrel.authapi.repositories.ProductRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import jakarta.annotation.PostConstruct;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class ProductService {
+
+
     private final ProductRepository productRepository;
 
     public ProductService(ProductRepository productRepository) {
@@ -54,8 +60,23 @@ public class ProductService {
         product.setPrice(productDTO.getPrice());
         product.setDescription(productDTO.getDescription());
         product.setImage(productDTO.getImage());
-
         return productRepository.save(product);
+    }
+
+    private String saveImageLocally(MultipartFile imageFile) throws IOException {
+        String fileName = imageFile.getOriginalFilename();
+        String filePath = "C:/products/" + fileName; // Ruta donde se guardarán las imágenes
+
+        File directory = new File("C:/products");
+        if (!directory.exists()) {
+            directory.mkdirs(); // Crea el directorio si no existe
+        }
+
+        try (FileOutputStream fos = new FileOutputStream(filePath)) {
+            fos.write(imageFile.getBytes());
+        }
+
+        return filePath;
     }
 
     public Product updateProduct(Long id, ProductDto productDTO) {
